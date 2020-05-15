@@ -3,6 +3,10 @@
 #include "IntensityImage.h"
 #include "ImageFactory.h"
 #include <array>
+#include <cmath>
+#include <assert.h>
+using namespace std;
+#define M_PI   3.14159265358979323846264338327950288
 
 namespace ed{
 
@@ -89,6 +93,35 @@ namespace ed{
 		}
 		return new_image;
 	}
+
+	//Create a kernel with Gaussian algorithm
+
+	template< int kW, int kH>
+	matrix<kW, kH> getGaussian(matrix<kW,kH> & kernel, double sigma)
+	{
+		
+		double sum = 0.0;
+		int kernel_width = kernel.width;
+		int kernel_height = kernel.height;
+		int i = 0;
+		int j = 0;
+
+		for (i = 0; i < kernel_height; i++) {
+			for (j = 0; j < kernel_width; j++) {
+				kernel[i][j] = exp(-(i*i + j * j) / (2 * sigma*sigma)) / (2 * M_PI*sigma*sigma);
+				sum += kernel[i][j];
+			}
+		}
+
+		for (i = 0; i < kernel_height; i++) {
+			for (j = 0; j < kernel_width; j++) {
+				kernel[i][j] /= sum;
+			}
+		}
+
+		return kernel;
+	}
+
 
 }
 

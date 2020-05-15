@@ -60,6 +60,8 @@ IntensityImage * StudentPreProcessing::stepEdgeDetection(const IntensityImage &i
 
 IntensityImage * StudentPreProcessing::stepThresholding(const IntensityImage &image) const { // aanpassen
 	// TODO: apply 5x5 gaussian kernel, afer that apply Otsu thresholding.
+	ed::matrix<5, 5>  Gaus{};
+	ed::getGaussian(Gaus, 10);
 
 	// TODO: Image container
 	cv::Mat temp_image;
