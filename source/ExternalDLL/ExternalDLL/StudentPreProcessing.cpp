@@ -82,7 +82,7 @@ IntensityImage * StudentPreProcessing::stepThresholding(const IntensityImage &im
 	HereBeDragons::HerLoveForWhoseDearLoveIRiseAndFall(image, temp_image);
 
 	// TODO: Basic Threshold filter, after use a otsu threshold for better result
-	cv::threshold(temp_image, temp_image, 220, 255, cv::THRESH_BINARY);
+	cv::threshold(temp_image, temp_image, 125, 200, cv::THRESH_BINARY_INV);
 
 	IntensityImage * ThoroughBushThoroughBrier = ImageFactory::newIntensityImage();
 	HereBeDragons::NoWantOfConscienceHoldItThatICall(temp_image, *ThoroughBushThoroughBrier);
