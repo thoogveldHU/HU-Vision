@@ -3,6 +3,8 @@
 #include "IntensityImage.h"
 #include "ImageFactory.h"
 #include <array>
+#include <iostream>
+#include <map>
 
 namespace ed {
 
@@ -12,23 +14,23 @@ namespace ed {
 		int width = -1;
 		int height = -1;
 
-		T* matrix;
+		T* m;
 
 		matrix(const int h, const int w) :
 			width(w),
 			height(h)
 		{
-			matrix = new T[height*width];
+			m = new T[height * width];
 		}
 
 		matrix(const IntensityImage& image) :
 			width(image.getWidth()),
 			height(image.getHeight())
 		{
-			matrix = new T[height*width];
+			m = new T[height * width];
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++) {
-					matrix[(y*width) + x] = image.getPixel(x, y);
+					m[(y * width) + x] = image.getPixel(x, y);
 				}
 			}
 		}
@@ -38,10 +40,10 @@ namespace ed {
 			width(W),
 			height(H)
 		{
-			matrix = new T[height*width];
+			m = new T[height*width];
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++) {
-					matrix[(y*width) + x] = matrix[y][x];
+					m[(y*width) + x] = matrix[y][x];
 				}
 			}
 		}
@@ -57,19 +59,48 @@ namespace ed {
 			return img_ptr;
 		}
 
+		template <typename NT = unsigned int>
+		void equalization(int spread_size) {
+			static std::map<unsigned int, unsigned int> cdf = cdf_map();
+			static std::map<unsigned int, NT> equalized_value_map;
+			auto cdf_min = cdf.begin()->second;
+			auto MxN = width * height;
+			for (auto& pair : cdf) {
+				equalized_value_map[pair.first] = (((pair.second - cdf_min) / (MxN - cdf_min)) * (spread_size - 1));
+			}
+		}
+
 		T & operator()(const int y, const int x) {
-			return matrix[(y*width) + x];
+			return m[(y*width) + x];
 		}
 
 		T & operator()(int n) {
-			return matrix[n];
+			return m[n];
+		}
+
+	protected:
+
+		std::map<unsigned int, unsigned int> cdf_map() {
+			std::map<unsigned int, unsigned int> map;
+			for (int i = 0; i < (width*height); i++) {
+				if (m[i] < 0) {
+					map[0] += 1;
+				}
+				else {
+					map[m[i]] += 1;
+				}
+			}
+			for (auto ptr = std::next(map.begin(), 1); ptr != map.end(); ptr++) {
+				ptr->second += (std::next(ptr, -1))->second;
+			}
+			return map;
 		}
 	};
 
 
 	template <typename T, T H, T W, typename TT = T>
 	matrix<T> convolution(matrix<T> & image, matrix<TT, H, W> & kernel) {
-		//Find the center of the Kernel
+		// find center position of kernel
 		unsigned int kernel_width = kernel.width;
 		unsigned int kernel_height = kernel.height;
 
@@ -83,7 +114,7 @@ namespace ed {
 				for (int yy = kernel_height - 1; yy >= 0; --yy) {
 					for (int xx = kernel_width - 1; xx >= 0; --xx) {
 
-						// index of input signal, for the bounds.
+						// index of input signal
 						int image_index_Y = y + (kernel_center_Y - yy);
 						int image_index_X = x + (kernel_center_X - xx);
 
@@ -97,5 +128,4 @@ namespace ed {
 		}
 		return new_image;
 	}
-
 }
