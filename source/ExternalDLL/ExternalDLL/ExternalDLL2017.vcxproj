@@ -120,7 +120,6 @@
     <ClCompile Include="DefaultLocalization.cpp" />
     <ClCompile Include="DefaultPreProcessing.cpp" />
     <ClCompile Include="DLLExecution.cpp" />
-    <ClCompile Include="EdgeDetection.cpp" />
     <ClCompile Include="export.cpp" />
     <ClCompile Include="Feature.cpp" />
     <ClCompile Include="FeatureMap.cpp" />
